@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  siphon:
+    image: themattrix/tox
+    volumes:
+      - ../../:/source
+    env_file:
+      - ../../tests/tests.env
+    entrypoint: ../../source/docker/ci/run-tests.sh
+    depends_on:
+      - postgres
+      - mysql
+
+  mysql:
+    image: mariadb:10.5.8
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: siphon
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - ./../mysql/init.sql/:/docker-entrypoint-initdb.d/init.sql
+
+  postgres:
+      image: postgres
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+        POSTGRES_DB: siphon
+      ports:
+        - "5432:5432"
+      volumes:
+        - ./../postgres/:/docker-entrypoint-initdb.d/

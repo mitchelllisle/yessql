@@ -1,0 +1,4 @@
+pydantic
+aiomysql
+asyncpg
+pg8000
