@@ -3,6 +3,7 @@ from typing import AsyncGenerator, Dict, List, Tuple, Union
 import aiomysql as mysql
 
 from yessql.config import MySQLConfig
+from yessql.utils import PendingConnection
 
 
 class AioMySQL:
@@ -13,11 +14,11 @@ class AioMySQL:
         min_size: int = 1,
         max_size: int = 10,
     ):
-        self.pool = None
-        self.config = config
-        self.cursor_class = cursor_class
-        self.min_size = min_size
-        self.max_size = max_size
+        self.pool: Union[mysql.Pool, PendingConnection] = PendingConnection()
+        self.config: MySQLConfig = config
+        self.cursor_class: mysql.Cursor = cursor_class
+        self.min_size: int = min_size
+        self.max_size: int = max_size
 
     async def setup_pool(self):
         self.pool = await mysql.create_pool(

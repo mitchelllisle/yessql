@@ -13,7 +13,7 @@ class AioPostgres:
         self, config: PostgresConfig, timeout: int = None, min_size: int = 1, max_size: int = 10
     ):
         """
-        AioPostgres is an async postgres client that allows you to setup a connection pool for
+        AioPostgres is an async postgres client that allows you to set up a connection pool for
         Postgres and read and write data asynchronously. Contains an async context manager for easy
         setup and closing of the connections that you open.
         Args:
@@ -94,7 +94,7 @@ class AioPostgres:
             params: Any params you need to pass to the query
             model:
 
-        Returns: A List of Records that can be accessed as you would a Tuple (E.g record[0] or
+        Returns: A List of Records that can be accessed as you would a Tuple (E.g. record[0] or
         a Dict (E.g record["column"])
 
         """
@@ -120,7 +120,7 @@ class AioPostgres:
     async def commit(self, stmt: str) -> None:
         """
         Run a command against the database. This is useful for statements where you need to change
-        the database in some way E.g ALTER, CREATE, DROP statements etc
+        the database in some way E.g. ALTER, CREATE, DROP statements etc.
         Args:
             stmt: The statement to run
 

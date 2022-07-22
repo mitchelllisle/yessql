@@ -9,8 +9,8 @@ from yessql.utils import PendingConnection, PendingConnectionError
 class ContextCursor(postgresql.Cursor):
     """ContextCursor
     For some reason cursors always require you to define an explicit connect and close. This turns
-    these operations into a context manager so we can use them safely and ensure the cursor is
-    closed after use.
+    these operations into a context manager to make it safer and ensure the cursor is closed after
+    use.
     """
 
     def __enter__(self):
@@ -39,8 +39,8 @@ class Postgres:
 
     def setup_connection(self) -> None:
         """
-        Make a call to the database and attempt to setup a connection. This can either be called
-        explicitly or will be called as part of a context statement (I.e using `with`)
+        Make a call to the database and attempt to set up a connection. This can either be called
+        explicitly or will be called as part of a context statement (I.e. using `with`)
 
         Returns: None
 
@@ -89,7 +89,7 @@ class Postgres:
     def commit(self, stmt: str) -> int:
         """
         Although mostly the same as the write method - commit is useful for identifying when you
-        are making changes to the database and not pass params. Use this for any CREATE, DROP etc
+        are making changes to the database and not pass params. Use this for any CREATE, DROP etc.
         statements where you are managing the database to indicate to other developers where you are
         changing the database VS writing data to it
         Args:
@@ -105,8 +105,8 @@ class Postgres:
 
     def read(self, query: str, params: Tuple = None) -> Generator:
         """
-        Read data from the database using the given query and params. This is a generator so you can
-        iterate through the rows without loading them all into memory.
+        Read data from the database using the given query and params. This is a generator meaning
+        you can iterate through the rows without loading them all into memory.
         Args:
             query: The query to run
             params: Any params to be substituted for `%s` strings in above query
