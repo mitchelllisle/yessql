@@ -67,6 +67,11 @@ install-e: clean ## install via pip in editable mode this see https://pip.pypa.i
 test-cov: test ## run tests locally and output coverage file
 	coverage report > COVERAGE.txt
 
+commit-cov:
+	git add COVERAGE.txt
+	git commit -m 'Update COVERAGE.txt' --no-verify
+	git push
+
 install-all: ## install extra requirements for tests etc
 	pip install -r requirements/all.txt
 
