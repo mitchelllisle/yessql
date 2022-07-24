@@ -11,6 +11,6 @@ jobs:
       run: |
         sudo /etc/init.d/mysql stop
     - name: Install Dependencies
-      run: make install
+      run: make install && make install-tests
     - name: Run containers
       run: docker-compose -f docker/ci/docker-compose.yaml up --abort-on-container-exit
