@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  siphon:
+  yessql:
     image: themattrix/tox
     volumes:
       - ../../:/source
@@ -19,7 +19,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: siphon
+      MYSQL_DATABASE: yessql
       MYSQL_ROOT_PASSWORD: admin
     volumes:
       - ./../mysql/init.sql/:/docker-entrypoint-initdb.d/init.sql
@@ -29,7 +29,7 @@ services:
       environment:
         POSTGRES_USER: admin
         POSTGRES_PASSWORD: admin
-        POSTGRES_DB: siphon
+        POSTGRES_DB: yessql
       ports:
         - "5432:5432"
       volumes:

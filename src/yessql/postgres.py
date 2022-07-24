@@ -31,7 +31,7 @@ class Postgres:
     """**Blocking Postgres Client**
 
     Synchronous Postgres client for interacting with Postgres databases. For Asynchronous
-    Postgres client see siphon.AioPostgres
+    Postgres client see yessql.AioPostgres
     """
 
     def __init__(self, config: PostgresConfig):

@@ -15,7 +15,7 @@ from yessql import (
 
 
 class PGTestConfig(PostgresConfig):
-    database = 'siphon'
+    database = 'yessql'
 
     class Config:
         env_prefix = 'PG_'
