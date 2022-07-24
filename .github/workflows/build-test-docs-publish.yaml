@@ -1,0 +1,43 @@
+name: build-and-test
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Stop MySQL
+      run: |
+        sudo /etc/init.d/mysql stop
+    - name: Install Dependencies
+      run: make install && make install-tests
+    - name: Run containers
+      run: docker-compose -f docker/ci/docker-compose.yaml up --abort-on-container-exit
+
+  publish-to-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: make install-all
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: make publish
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - run: make install
+      - run: make install-docs
+      - run: mkdocs gh-deploy --force
