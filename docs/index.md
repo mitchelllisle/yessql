@@ -41,4 +41,4 @@ if __name__ == '__main__':
 
 1. You can easily swap out the Postgres variants for MySQL or omit Aio for non-async variants
 
-> Check out the examples page for more detail
+> Check out the [examples](https://mitchelllisle.github.io/yessql/examples/) page for more detail
