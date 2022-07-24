@@ -70,11 +70,7 @@ class TestAioPostgres(aiounittest.AsyncTestCase):
     async def test_query_low_timeout(self):
         with pytest.raises(TimeoutError):
             async with AioPostgres(self.config, timeout=1) as pg:
-                await pg.read_all('SELECT pg_sleep(10)')
-
-    async def test_query_wait_timeout(self):
-        async with AioPostgres(self.config) as pg:
-            await pg.read_all('SELECT pg_sleep(10)')
+                await pg.read_all('SELECT pg_sleep(2)')
 
     async def test_query_with_model(self):
         class Guitars(BaseModel):
