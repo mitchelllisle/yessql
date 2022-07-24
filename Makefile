@@ -70,6 +70,9 @@ test-cov: test ## run tests locally and output coverage file
 install-all: ## install extra requirements for tests etc
 	pip install -r requirements/all.txt
 
+install-docs:
+	pip install -r requirements/docs.txt
+
 install-dev-local: ## install all the stuff you need to develop locally
 	pip install --upgrade pip
 	pip install wheel
