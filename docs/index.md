@@ -13,7 +13,7 @@ There are already some fantastic database libraries out there for Python. Howeve
 disappointed by the amount of boiler plate that you have to write before you can start working with
 data. This library aims to address a number of challenges in working with common SQL databases:
 
-!!! info 
+!!! info "Philosophy"
     - Reduce the amount of time and code I need to write before I can start working with my data 
     - Provide a common format and syntax for different databases 
     - Let me model my data and provide you the model so I know the data I'm getting is what I expect 
@@ -23,7 +23,7 @@ These are the principles I have adopted when writing this library.
 
 We try and keep a small footprint of dependencies. The main libraries we use are:
 
-!!! info
+!!! info "Dependencies"
     - [Pydantic: An excellent data validation and modelling library](https://pydantic-docs.helpmanual.io/)
     - [aiomysql: An Async MySQL library](https://pydantic-docs.helpmanual.io/)
     - [asyncpg: An async Postgres library](https://magicstack.github.io/asyncpg/current/)

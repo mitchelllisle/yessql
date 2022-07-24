@@ -33,3 +33,12 @@ repos:
       - id: mypy
         args: [--follow-imports=silent, --ignore-missing-imports, --exclude="src/yessql/__init__.py"]
         exclude: "tests/.+"
+  - repo: local
+    hooks:
+      - id: tests
+        name: run tests
+        entry: make test-cov
+        language: python
+        pass_filenames: false
+        stages:
+          - commit
