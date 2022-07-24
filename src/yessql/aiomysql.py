@@ -14,6 +14,16 @@ class AioMySQL:
         min_size: int = 1,
         max_size: int = 10,
     ):
+        """
+        AioMySQL is an async postgres client that allows you to set up a connection pool for
+        MySQL and read and write data asynchronously. Contains an async context manager for easy
+        setup and closing of the connections that you open.
+        Args:
+            config: a DatabaseConfig object that contains all the connection details for postgres
+            cursor_class: The cursor class to use
+            min_size: The minimum # of connections that will be reserved for this client
+            max_size: The maximum # of connections that will be reserved for this client
+        """
         self.pool: Union[mysql.Pool, PendingConnection] = PendingConnection()
         self.config: MySQLConfig = config
         self.cursor_class: mysql.Cursor = cursor_class
