@@ -3,5 +3,5 @@ mkdocs-material
 mkdocs-gen-files
 mkdocs-literate-nav
 mkdocs-gen-files
-mkdocstrings
+mkdocstrings[python]
 mkautodoc
