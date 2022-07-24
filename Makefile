@@ -70,7 +70,6 @@ test-cov: test ## run tests locally and output coverage file
 commit-cov:
 	git add COVERAGE.txt
 	git commit -m 'Update COVERAGE.txt' --no-verify
-	git push
 
 install-all: ## install extra requirements for tests etc
 	pip install -r requirements/all.txt
