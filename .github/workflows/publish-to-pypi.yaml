@@ -1,4 +1,4 @@
-name: Publish to PyPi
+name: publish-to-pypi
 
 on:
   push:
