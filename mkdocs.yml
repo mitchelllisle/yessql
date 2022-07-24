@@ -1,17 +1,37 @@
-site_name: yessql
+site_name: YesSQL
 repo_url: https://github.com/mitchelllisle/yessql
-repo_name: GitHub
+repo_name: mitchelllisle/yessql
 site_author: Mitchell Lisle
+edit_uri: ""
 
 theme:
   name: "material"
+  font:
+    text: Inter
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    logo: material/database
+    repo: fontawesome/brands/github
   features:
     - content.code.annotate
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
 
 nav:
   - Home: index.md
-  - Examples: examples.md
+  - Usage: usage.md
   - API : docs/
+  - Contributing: contributing.md
 
 plugins:
   - search

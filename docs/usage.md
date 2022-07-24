@@ -1,4 +1,4 @@
-# Examples
+# Usage
 
 1. [Creating a database config object](#creating-a-database-config-object)
 2. [Reading data using the async generator method `read`](#reading-data-using-the-async-generator-method-read)
@@ -14,12 +14,13 @@ them or provide defaults when necessary.
  - `MySQLConfig`: A MySQL specific config
  - `PostgresConfig`: A Postgres specific config
 
----
 
-> The following examples will all use the Postgres variants of the library. All examples will work
-> for MySQL as well. Simply import the MySQL objects instead.
 
 ---
+
+!!! note 
+    The following examples will all use the Postgres variants of the library. All examples will work
+    for MySQL as well. Simply import the MySQL objects instead.
 
 ## Sourcing config values from the environment
 

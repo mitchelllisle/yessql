@@ -19,8 +19,13 @@ def keep_file(
 
 
 def get_files():
-    files = sorted(Path('src').rglob('*.py'))
-    return list(filter(lambda file: keep_file(file), files))
+    files = []
+    folders = [('src', '*.py')]
+    for folder in folders:
+        for file in sorted(Path(folder[0]).rglob(folder[1])):
+            if keep_file(file):
+                files.append(file)
+    return files
 
 
 for path in get_files():
