@@ -1,3 +1,6 @@
+.PHONY: clean clean-test clean-pyc clean-build docs help
+.DEFAULT_GOAL := help
+
 clean: ## remove all build, test, coverage and Python artifacts
 	@echo -----------------------------------------------------------------
 	@echo CLEANING UP ...
@@ -64,7 +67,7 @@ install-e: clean ## install via pip in editable mode this see https://pip.pypa.i
 test-cov: test ## run tests locally and output coverage file
 	coverage report > COVERAGE.txt
 
-install-extras: ## install extra requirements for tests etc
+install-all: ## install extra requirements for tests etc
 	pip install -r requirements/all.txt
 
 install-dev-local: ## install all the stuff you need to develop locally
@@ -82,3 +85,7 @@ run-infra:
 
 stop-infra:
 	docker-compose -f docker/dev/docker-compose.yaml down
+
+docs: ## generate Sphinx HTML documentation, including API docs
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html

@@ -54,18 +54,13 @@ class AioPostgres:
         """
         Read results from postgres and return an AsyncGenerator. This allows you to read large
         amounts of data without having to store them in memory.
-        Examples:
-            pg = Postgres()
-            async for row in pg.read("SELECT * FROM bigtable"):
-                process(row)
         Args:
             query: The query you want to return data for
             params: Any params you need to pass to the query
-            model: An optional pydantic.BaseModel that will be run over the row to parse to
-            a standard format
+            model: An optional pydantic.BaseModel that each row will be parsed to
 
-        Returns: An AsyncGenerator
-
+        Returns:
+            An AsyncGenerator
         """
         _params = NamedParams(**params) if params is not None else None
         _query = query.format_map(_params)
@@ -94,9 +89,8 @@ class AioPostgres:
             params: Any params you need to pass to the query
             model:
 
-        Returns: A List of Records that can be accessed as you would a Tuple (E.g. record[0] or
-        a Dict (E.g record["column"])
-
+        Returns:
+            A List of Records
         """
         rows = []
         async for row in self.read(query=query, params=params, model=model):
@@ -110,8 +104,8 @@ class AioPostgres:
             stmt: The Insert statement you want to run
             params: The data to pass as params
 
-        Returns: None
-
+        Returns:
+            None
         """
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.transaction():
@@ -123,9 +117,6 @@ class AioPostgres:
         the database in some way E.g. ALTER, CREATE, DROP statements etc.
         Args:
             stmt: The statement to run
-
-        Returns: None
-
         """
         async with self.pool.acquire() as conn:  # type: ignore
             await conn.execute(stmt)

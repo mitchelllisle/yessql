@@ -25,7 +25,7 @@ class AioMySQL:
             host=self.config.host.get_secret_value(),
             user=self.config.user.get_secret_value(),
             password=self.config.password.get_secret_value(),
-            db=self.config.db,
+            db=self.config.database,
             port=self.config.port,
             minsize=self.min_size,
             maxsize=self.max_size,

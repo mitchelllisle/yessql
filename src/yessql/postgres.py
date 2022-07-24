@@ -7,7 +7,8 @@ from yessql.utils import PendingConnection, PendingConnectionError
 
 
 class ContextCursor(postgresql.Cursor):
-    """ContextCursor
+    """**ContextCursor**
+
     For some reason cursors always require you to define an explicit connect and close. This turns
     these operations into a context manager to make it safer and ensure the cursor is closed after
     use.
@@ -27,10 +28,14 @@ class ContextCursor(postgresql.Cursor):
 
 
 class Postgres:
+    """**Blocking Postgres Client**
+
+    Synchronous Postgres client for interacting with Postgres databases. For Asynchronous
+    Postgres client see siphon.AioPostgres
+    """
+
     def __init__(self, config: PostgresConfig):
         """
-        Synchronous Postgres client for interacting with Postgres databases. For Asynchronous
-        Postgres client see siphon.AioPostgres
         Args:
             config: A PostgresConfig object for connecting to the database
         """
@@ -42,8 +47,8 @@ class Postgres:
         Make a call to the database and attempt to set up a connection. This can either be called
         explicitly or will be called as part of a context statement (I.e. using `with`)
 
-        Returns: None
-
+        Returns:
+            None
         """
         self.connection = postgresql.connect(
             host=self.config.host.get_secret_value(),
@@ -58,8 +63,8 @@ class Postgres:
         Close the connection to the database. Can be used explicitly or will be called as you exit
         out of a context managed statement.
 
-        Returns: None
-
+        Returns:
+            None
         """
         self.connection.close()
 
@@ -78,7 +83,8 @@ class Postgres:
             stmt: The insert statement to run. `%s` placeholders are used for indicating params
             rows: A list of tuples containing the data to pass to the above query.
 
-        Returns: Row count as an integer
+        Returns:
+            Row count as an integer
 
         """
         with ContextCursor(connection=self.connection) as cursor:
@@ -95,7 +101,8 @@ class Postgres:
         Args:
             stmt: The statement to run
 
-        Returns: Row count
+        Returns:
+            Row count
 
         """
         with ContextCursor(connection=self.connection) as cursor:
@@ -111,7 +118,8 @@ class Postgres:
             query: The query to run
             params: Any params to be substituted for `%s` strings in above query
 
-        Returns: A generator
+        Returns:
+            A generator
 
         """
         with ContextCursor(self.connection) as cursor:
@@ -133,7 +141,8 @@ class Postgres:
             query: The query to run
             params: Any params to be substituted for `%s` strings in above query
 
-        Returns: A list of dicts with the data from the query
+        Returns:
+            A list of dicts with the data from the query
 
         """
         return [row for row in self.read(query, params)]
