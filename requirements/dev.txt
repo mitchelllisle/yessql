@@ -1,5 +1,5 @@
 bumpversion
-
+wheel
 twine
 
 # linting
