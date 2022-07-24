@@ -69,13 +69,16 @@ test-cov: test ## run tests locally and output coverage file
 
 commit-cov:
 	git add COVERAGE.txt
-	git commit --amend --no-edit --no-verify
+	#git commit --amend --no-edit --no-verify
 
 install-all: ## install extra requirements for tests etc
 	pip install -r requirements/all.txt
 
 install-docs:
 	pip install -r requirements/docs.txt
+
+install-tests:
+	pip install -r requirements/test.txt
 
 install-dev-local: ## install all the stuff you need to develop locally
 	pip install --upgrade pip
