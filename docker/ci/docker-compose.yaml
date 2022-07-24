@@ -6,7 +6,7 @@ services:
     volumes:
       - ../../:/source
     env_file:
-      - ../../tests/tests.env
+      - ../../tests/.tests.env
     entrypoint: ../../source/docker/ci/run-tests.sh
     depends_on:
       - postgres
