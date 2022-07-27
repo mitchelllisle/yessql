@@ -1,14 +1,16 @@
-from typing import AsyncGenerator, Dict, List, Tuple, Type, Union
+from abc import ABC
+from typing import AsyncGenerator, Dict, Tuple, Type, Union
 
-from asyncpg import Pool, Record, create_pool
+from asyncpg import Pool, create_pool
 from pydantic import BaseModel
 
 from yessql.aiopostgres.params import NamedParams
+from yessql.clients import AsyncDatabaseClient
 from yessql.config import PostgresConfig
 from yessql.utils import PendingConnection
 
 
-class AioPostgres:
+class AioPostgres(AsyncDatabaseClient, ABC):
     def __init__(
         self, config: PostgresConfig, timeout: int = None, min_size: int = 1, max_size: int = 10
     ):
@@ -23,10 +25,9 @@ class AioPostgres:
             max_size: The maximum # of connections that will be reserved for this client
         """
         self.pool: Union[PendingConnection, Pool] = PendingConnection()
-        self.config = config
+        self.config: PostgresConfig = config
         self.timeout = timeout
-        self.min_size = min_size
-        self.max_size = max_size
+        super().__init__(config, min_size, max_size)
 
     @property
     def closed(self) -> bool:
@@ -44,24 +45,21 @@ class AioPostgres:
             max_size=self.max_size,
         )
 
-    async def __aenter__(self):
-        await self.setup_pool()
-        return self
+    async def close_pool(self) -> None:
+        """Close Connection Pool
+
+        Close the connection pool. If you're running this class inside a context manager (which you
+        should be) then this will get called as part of exiting the context.
+
+        Returns:
+            None
+
+        """
+        await self.pool.close()  # type: ignore
 
     async def read(
         self, query: str, params: Dict = None, model: Type[BaseModel] = None
     ) -> AsyncGenerator:
-        """
-        Read results from postgres and return an AsyncGenerator. This allows you to read large
-        amounts of data without having to store them in memory.
-        Args:
-            query: The query you want to return data for
-            params: Any params you need to pass to the query
-            model: An optional pydantic.BaseModel that each row will be parsed to
-
-        Returns:
-            An AsyncGenerator
-        """
         _params = NamedParams(**params) if params is not None else None
         _query = query.format_map(_params)
 
@@ -73,29 +71,6 @@ class AioPostgres:
                         yield model(**row)
                     else:
                         yield row
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close_pool()
-
-    async def read_all(
-        self, query: str, params: Dict = None, model: Type[BaseModel] = None
-    ) -> Union[List[Record], Type[BaseModel]]:
-        """
-        In some cases you might want to just return the data without dealing with iteration you can
-        use this. We'll return all the records in a list. Be careful using this for large datasets
-        as it will try and load everything in memory.
-        Args:
-            query: The query you want to return data for
-            params: Any params you need to pass to the query
-            model:
-
-        Returns:
-            A List of Records
-        """
-        rows = []
-        async for row in self.read(query=query, params=params, model=model):
-            rows.append(row)
-        return rows
 
     async def write(self, stmt: str, params: Tuple) -> None:
         """
@@ -120,21 +95,3 @@ class AioPostgres:
         """
         async with self.pool.acquire() as conn:  # type: ignore
             await conn.execute(stmt)
-
-    async def close_pool(self) -> None:
-        await self.pool.close()  # type: ignore
-
-    def writer(self, stmt: str):
-        """return a writer for the given statement.
-
-        Basically just curry's the write method into a coroutine that accepts a batch of parameters
-        and writes using the given statement. Obviously this is useful if you are batching inserts.
-
-        Args:
-            stmt: The Insert statement you want to run
-        """
-
-        async def writer(batch):
-            await self.write(stmt, batch)
-
-        return writer

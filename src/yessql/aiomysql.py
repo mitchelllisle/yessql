@@ -1,12 +1,15 @@
-from typing import AsyncGenerator, Dict, List, Tuple, Union
+from abc import ABC
+from typing import AsyncGenerator, Tuple, Type, Union
 
 import aiomysql as mysql
+from pydantic import BaseModel
 
+from yessql.clients import AsyncDatabaseClient
 from yessql.config import MySQLConfig
 from yessql.utils import PendingConnection
 
 
-class AioMySQL:
+class AioMySQL(AsyncDatabaseClient, ABC):
     def __init__(
         self,
         config: MySQLConfig,
@@ -14,23 +17,24 @@ class AioMySQL:
         min_size: int = 1,
         max_size: int = 10,
     ):
-        """
-        AioMySQL is an async postgres client that allows you to set up a connection pool for
-        MySQL and read and write data asynchronously. Contains an async context manager for easy
-        setup and closing of the connections that you open.
-        Args:
-            config: a DatabaseConfig object that contains all the connection details for postgres
-            cursor_class: The cursor class to use
-            min_size: The minimum # of connections that will be reserved for this client
-            max_size: The maximum # of connections that will be reserved for this client
-        """
         self.pool: Union[mysql.Pool, PendingConnection] = PendingConnection()
         self.config: MySQLConfig = config
         self.cursor_class: mysql.Cursor = cursor_class
-        self.min_size: int = min_size
-        self.max_size: int = max_size
+        super().__init__(config, min_size, max_size)
 
     async def setup_pool(self):
+        """Setup Connection Pool
+
+        We use connection pools for connecting to MySQL. This method can be used to set up the
+        connection - however you will need to call `close_pool` to ensure all database connections
+        are correctly closed when no longer needed. Although some situations may require you to do
+        these steps manually, you should (where possible) use the context manager aspect of this
+        class (I.E. using a with statement) since this will handle closing the connection for you.
+
+        Returns:
+            Nothing is returned. This will instead initialise the pool property.
+
+        """
         self.pool = await mysql.create_pool(
             host=self.config.host.get_secret_value(),
             user=self.config.user.get_secret_value(),
@@ -41,38 +45,65 @@ class AioMySQL:
             maxsize=self.max_size,
         )
 
-    async def __aenter__(self):
-        await self.setup_pool()
-        return self
+    async def read(
+        self, query: str, params: Tuple = None, model: Type[BaseModel] = None
+    ) -> AsyncGenerator:
+        """
+        Read results from postgres and return an AsyncGenerator. This allows you to read large
+        amounts of data without having to store them in memory.
+        Args:
+            query: The query you want to return data for
+            params: Any params you need to pass to the query
+            model: An optional pydantic.BaseModel we'll use as the row return type
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close_pool()
-
-    async def read(self, query: str, params: Tuple = None) -> AsyncGenerator:
+        Returns:
+            An AsyncGenerator
+        """
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.cursor(self.cursor_class) as cur:
                 await cur.execute(query, params)
                 async for row in cur:
-                    yield row
-
-    async def read_all(self, query: str, params: Tuple = None) -> List[Dict]:
-        rows = []
-        async for row in self.read(query, params):
-            rows.append(row)
-        return rows
+                    if model:
+                        yield model(**row)
+                    else:
+                        yield row
 
     async def write(self, stmt: str, params: Union[Tuple, str, int]) -> None:
+        """
+        Write data to a table with the given statement and data
+        Args:
+            stmt: The Insert statement you want to run
+            params: The data to pass as params
+
+        Returns:
+            None
+        """
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.cursor() as cur:
                 await cur.executemany(stmt, params)
             await conn.commit()
 
     async def commit(self, stmt: str):
+        """
+        Run a command against the database. This is useful for statements where you need to change
+        the database in some way E.g. ALTER, CREATE, DROP statements etc.
+        Args:
+            stmt: The statement to run
+        """
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.cursor() as cur:
                 await cur.execute(stmt)
             await conn.commit()
 
-    async def close_pool(self):
+    async def close_pool(self) -> None:
+        """Close Connection Pool
+
+        Close the connection pool. If you're running this class inside a context manager (which you
+        should be) then this will get called as part of exiting the context.
+
+        Returns:
+            None
+
+        """
         self.pool.close()
         await self.pool.wait_closed()

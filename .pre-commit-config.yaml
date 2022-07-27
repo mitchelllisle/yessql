@@ -39,6 +39,7 @@ repos:
         name: run tests
         entry: make test-cov
         language: python
+        always_run: true
         pass_filenames: false
         stages:
           - commit
