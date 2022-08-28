@@ -82,9 +82,11 @@ class AioPostgres(AsyncDatabaseClient, ABC):
         Returns:
             None
         """
+        _params = NamedParams(**params) if params is not None else None
+        _query = query.format_map(_params)
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.transaction():
-                await conn.executemany(stmt, params)
+                await conn.executemany(_query, _params)
 
     async def commit(self, stmt: str) -> None:
         """
