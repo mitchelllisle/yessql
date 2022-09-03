@@ -1,16 +1,15 @@
-from abc import ABC
-from typing import AsyncGenerator, Dict, Tuple, Type, Union
+from typing import AsyncGenerator, Dict, List, Type, Union
 
 from asyncpg import Pool, create_pool
 from pydantic import BaseModel
 
-from yessql.aiopostgres.params import NamedParams
+from yessql.aiopostgres.params import NamedParams, NamedParamsList
 from yessql.clients import AsyncDatabaseClient
 from yessql.config import PostgresConfig
 from yessql.utils import PendingConnection
 
 
-class AioPostgres(AsyncDatabaseClient, ABC):
+class AioPostgres(AsyncDatabaseClient):
     def __init__(
         self, config: PostgresConfig, timeout: int = None, min_size: int = 1, max_size: int = 10
     ):
@@ -72,7 +71,7 @@ class AioPostgres(AsyncDatabaseClient, ABC):
                     else:
                         yield row
 
-    async def write(self, stmt: str, params: Tuple) -> None:
+    async def write(self, stmt: str, params: List[Dict]) -> None:
         """
         Write data to a table with the given statement and data
         Args:
@@ -82,11 +81,11 @@ class AioPostgres(AsyncDatabaseClient, ABC):
         Returns:
             None
         """
-        _params = NamedParams(**params) if params is not None else None
-        _query = query.format_map(_params)
+        _params = NamedParamsList(params) if params is not None else None
+        _query = _params.format_map(stmt)
         async with self.pool.acquire() as conn:  # type: ignore
             async with conn.transaction():
-                await conn.executemany(_query, _params)
+                await conn.executemany(_query, _params.as_tuples())
 
     async def commit(self, stmt: str) -> None:
         """

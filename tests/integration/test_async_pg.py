@@ -1,4 +1,6 @@
+import uuid
 from asyncio import TimeoutError
+from random import SystemRandom
 
 import aiounittest
 import pytest
@@ -13,6 +15,25 @@ class PGTestConfig(PostgresConfig):
 
     class Config:
         env_prefix = 'PG_'
+
+
+class Guitars(BaseModel):
+    id: UUID4
+    make: str
+    model: str
+    type: str
+    source: str
+
+
+def make_guitar_row(source: str) -> Guitars:
+    guitars = {
+        'Fender': ['Stratocaster', 'Jazzmaster', 'Mustang'],
+        'Gibson': ['SG', 'Les Paul'],
+        'Rickenbacker': ['330', '330/12'],
+    }
+    make = SystemRandom().choice(list(guitars.keys()))
+    model = SystemRandom().choice(guitars[make])
+    return Guitars(id=str(uuid.uuid4()), make=make, model=model, type='electric', source=source)
 
 
 class TestAioPostgres(aiounittest.AsyncTestCase):
@@ -37,7 +58,7 @@ class TestAioPostgres(aiounittest.AsyncTestCase):
         _type = 'semi-hollow-electric'
         await self.postgres.setup_pool()
         async for row in self.postgres.read(
-            query='SELECT * FROM instruments.guitars WHERE id = {id} AND type = {type}',
+            query='SELECT * FROM instruments.guitars WHERE id = ${id} AND type = ${type}',
             params={'id': _id, 'type': _type},
         ):
             assert str(row['id']) == _id
@@ -46,7 +67,9 @@ class TestAioPostgres(aiounittest.AsyncTestCase):
 
     async def test_read_all(self):
         await self.postgres.setup_pool()
-        data = await self.postgres.read_all('SELECT * FROM instruments.guitars')
+        data = await self.postgres.read_all(
+            "SELECT * FROM instruments.guitars WHERE source = 'init'"
+        )
         assert len(data) == 3
         await self.postgres.close_pool()
 
@@ -73,18 +96,38 @@ class TestAioPostgres(aiounittest.AsyncTestCase):
                 await pg.read_all('SELECT pg_sleep(3)')
 
     async def test_query_with_model(self):
-        class Guitars(BaseModel):
-            id: UUID4
-            make: str
-            model: str
-            type: str
-
+        source = 'test-query-with-model'
+        guitar = make_guitar_row(source)
         async with AioPostgres(self.config) as pg:
-            data = await pg.read_all('SELECT * from instruments.guitars', model=Guitars)
+            await pg.write(
+                """INSERT INTO instruments.guitars 
+                VALUES (${id}, ${make}, ${model}, ${type}, ${source})""",
+                [guitar.dict()],
+            )
+            data = await pg.read_all(
+                'SELECT * from instruments.guitars where id = ${id}',
+                {'id': str(guitar.id)},
+                model=Guitars,
+            )
 
         row = data[0]
         assert all(map(lambda x: isinstance(x, Guitars), data))
-        assert str(row.id) == 'b7337fa5-3e17-4628-b4db-00af02e07fdc'
-        assert row.make == 'rickenbacker'
-        assert row.model == '330'
-        assert row.type == 'semi-hollow-electric'
+        assert row.id == guitar.id
+        assert row.make == guitar.make
+        assert row.model == guitar.model
+        assert row.type == guitar.type
+
+    async def test_write(self):
+        rows = [make_guitar_row('test-write').dict() for _ in range(100)]
+        stmt = """
+            INSERT INTO instruments.guitars VALUES (${id}, ${make}, ${model}, ${type}, ${source})
+        """
+        async with AioPostgres(self.config) as pg:
+            await pg.write(stmt, rows)
+            output = await pg.read_all(
+                'SELECT * FROM instruments.guitars WHERE source = ${source}',
+                params={'source': 'test-write'},
+                model=dict,
+            )
+            await pg.commit("DELETE FROM instruments.guitars WHERE source = 'test-write'")
+        assert output == rows

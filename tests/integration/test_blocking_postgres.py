@@ -28,14 +28,15 @@ class TestPg(unittest.TestCase):
         self.pg.setup_connection()
 
     def test_read_postgres(self):
-        row = next(self.pg.read('select * from instruments.guitars'))
+        row = next(self.pg.read("select * from instruments.guitars where source = 'init'"))
         assert str(row['id']) == 'b7337fa5-3e17-4628-b4db-00af02e07fdc'
 
     def test_write_to_postgres(self):
         _id = str(uuid.uuid4())
         self.pg.write(
-            stmt='INSERT INTO instruments.guitars (id, make, model, type) VALUES (%s, %s, %s, %s)',
-            rows=[(_id, 'test', 'test', 'test')],
+            stmt="""INSERT INTO instruments.guitars 
+            (id, make, model, type, source) VALUES (%s, %s, %s, %s, %s)""",
+            rows=[(_id, 'test', 'test', 'test', 'blocking-test')],
         )
         # clean up test data afterwards
         self.pg.write('DELETE FROM instruments.guitars WHERE id = $1', [(_id,)])

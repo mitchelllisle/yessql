@@ -1,15 +1,1 @@
-Name                                 Stmts   Miss  Cover
---------------------------------------------------------
-src/yessql/__init__.py                  10      0   100%
-src/yessql/__main__.py                   0      0   100%
-src/yessql/aiomysql.py                  36      5    86%
-src/yessql/aiopostgres/__init__.py       0      0   100%
-src/yessql/aiopostgres/client.py        38      4    89%
-src/yessql/aiopostgres/params.py         7      0   100%
-src/yessql/clients.py                   41      8    80%
-src/yessql/config.py                    15      0   100%
-src/yessql/logger.py                     2      0   100%
-src/yessql/postgres.py                  44      5    89%
-src/yessql/utils.py                     10      3    70%
---------------------------------------------------------
-TOTAL                                  203     25    88%
+No source for code: '/Users/mitchell/Documents/projects/data-engineering/yessql/src/yessql/__main__.py'.
