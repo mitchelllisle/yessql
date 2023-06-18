@@ -33,7 +33,7 @@ clean-test: ## remove test and coverage artifacts
 test: ## run tests (and coverage if configured in setup.cfg) with the default Python
 	@echo -----------------------------------------------------------------
 	@echo RUNNING TESTS...
-	poetry run pytest
+	poetry run pytest --cov=yessql
 	@echo ✅ Tests have passed! Nice work!
 	@echo -----------------------------------------------------------------
 
