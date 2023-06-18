@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yessql"
-version = "0.2.3"
+version = "0.3.0"
 description = "An easy to use python SQL database interface for Postgres and MySQL"
 authors = ["Mitchell Lisle <m.lisle90@gmail.com>"]
 readme = "README.md"
