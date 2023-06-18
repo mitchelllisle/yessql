@@ -2,7 +2,7 @@
 set -e
 
 cd /source
-pip install poetry
+curl -sSL https://install.python-poetry.org | python3 -
 make install
 make install-tests
 make test
