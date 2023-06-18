@@ -8,5 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install poetry
+      run: pip install poetry
     - name: Run containers
       run: docker-compose -f docker/ci/docker-compose.yaml up --abort-on-container-exit
