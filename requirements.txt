@@ -1,5 +1,0 @@
-pydantic
-aiomysql
-asyncpg
-pg8000
-pipe
